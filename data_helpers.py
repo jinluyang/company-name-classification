@@ -6,16 +6,27 @@ from collections import Counter
 import jieba
 # from gensim.models import word2vec
 
+def remove_bracket(x):
+    eng_brk = re.compile('\(.*?\)')
+    chi_brk = re.compile('\（.*?\）')
+    brk = re.compile('\【.*?\】')
+    x = eng_brk.sub('', x)
+    x = chi_brk.sub('', x)
+    x = brk.sub('', x)
+    return x
+
 def clean_str(string):
     """
     Tokenization/string cleaning for all datasets except for SST.
     Original taken from https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py
     """
+
     string = re.sub(r"\'s", " \'s", string)
     
     string = re.sub(r"\(", " \( ", string)
     string = re.sub(r"\)", " \) ", string)
     string = re.sub(r"\?", " \? ", string)
+    string = remove_bracket(string)
     return string.strip().lower()
 
 
