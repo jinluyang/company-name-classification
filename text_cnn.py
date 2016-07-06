@@ -103,7 +103,7 @@ def setup_cnn_model(ctx, batch_size, sentence_size, num_embed, vocab_size,
 
 
 def train_cnn(model, X_train_batch, y_train_batch, X_dev_batch, y_dev_batch, batch_size,
-        optimizer='rmsprop', max_grad_norm=5.0, learning_rate=0.0005, epoch=10):  #epoch=200
+        optimizer='rmsprop', max_grad_norm=5.0, learning_rate=0.0005, epoch=20):  #epoch=200
     m = model
     if not os.path.isdir('checkpoint'):
         os.system("mkdir checkpoint")
@@ -117,7 +117,7 @@ def train_cnn(model, X_train_batch, y_train_batch, X_dev_batch, y_dev_batch, bat
         tic = time.time()
         num_correct = 0
         num_total = 0
-        for begin in range(0, X_train_batch.shape[0], batch_size):
+        for begin in range(0, X_train_batch.shape[0], batch_size):  #分批
             batchX = X_train_batch[begin:begin+batch_size]
             batchY = y_train_batch[begin:begin+batch_size]
             if batchX.shape[0] != batch_size:
@@ -164,7 +164,7 @@ def train_cnn(model, X_train_batch, y_train_batch, X_dev_batch, y_dev_batch, bat
         train_acc = num_correct * 100 / float(num_total)
 
         # saving checkpoint
-        if (iteration + 1) % 5 == 0:  #原来是% 10
+        if (iteration + 1) % 10 == 0:
             prefix = 'cnn'
             m.symbol.save('checkpoint/%s-symbol.json' % prefix)  #mkdir checkpoint文件夹
             save_dict = {('arg:%s' % k) :v  for k, v in m.cnn_exec.arg_dict.items()}
@@ -193,7 +193,7 @@ def train_cnn(model, X_train_batch, y_train_batch, X_dev_batch, y_dev_batch, bat
         dev_acc = num_correct * 100 / float(num_total)
         print >> logs, 'Iter [%d] Train: Time: %.3fs, Training Accuracy: %.3f \
                 --- Dev Accuracy thus far: %.3f' % (iteration, train_time, train_acc, dev_acc)
-
+    return m
 
 
 
@@ -219,8 +219,8 @@ def train_without_pretrained_embedding():
     print 'embedding size', num_embed
 
     cnn_model = setup_cnn_model(mx.cpu(), batch_size, sentence_size, num_embed, vocab_size, dropout=0.5, with_embedding=False) #原来是mx.gpu(0)
-    train_cnn(cnn_model, x_train, y_train, x_dev, y_dev, batch_size)
-
+    m=train_cnn(cnn_model, x_train, y_train, x_dev, y_dev, batch_size)
+    
 
 if __name__ == '__main__':
     train_without_pretrained_embedding()
