@@ -136,6 +136,7 @@ def batch_iter(data, batch_size, num_epochs):
 
 def train_test_split(x,y,rate=0.8):
     labels = Counter(y)
+    d=dict(labels)
     num_labels=len(labels)
     # randomly shuffle data
     np.random.seed(10)
@@ -144,7 +145,16 @@ def train_test_split(x,y,rate=0.8):
     y_shuffled = y[shuffle_indices]
      # split train/dev set
     x_dev = []
-    
-    x_train, = x_shuffled[:-100],
-    y_train, y_dev = y_shuffled[:-100], y_shuffled[-100:]
+    y_dev = []
+    x_train = []
+    y_train = []
+    for i in xrange(len(y_shuffled)):
+        j=y_shuffled[i]
+        if d[j]<labels[j]*rate:
+            y_train.append(j)
+            x_train.append(j)
+        else:
+            y_dev.append(j)
+            x_dev.append(j)
+            d[j]-=1
     return x_train, x_dev, y_train, y_dev
