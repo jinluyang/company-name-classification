@@ -201,10 +201,15 @@ def train_without_pretrained_embedding():
     x, y, vocab, vocab_inv = data_helpers.load_data()
     vocab_size = len(vocab)
 
+    # randomly shuffle data
+    np.random.seed(10)
+    shuffle_indices = np.random.permutation(np.arange(len(y)))
+    x_shuffled = x[shuffle_indices]
+    y_shuffled = y[shuffle_indices]
 
-    x_train, x_dev, y_train, y_dev =data_helpers.train_test_split(x,y)
-
-
+    # split train/dev set
+    x_train, x_dev = x_shuffled[:-1000], x_shuffled[-1000:]
+    y_train, y_dev = y_shuffled[:-1000], y_shuffled[-1000:]
     print 'Train/Dev split: %d/%d' % (len(y_train), len(y_dev))
     print 'train shape:', x_train.shape
     print 'dev shape:', x_dev.shape
