@@ -152,9 +152,9 @@ def train_test_split(x,y,rate=0.8):
         j=y_shuffled[i]
         if d[j]<labels[j]*rate:
             y_train.append(j)
-            x_train.append(j)
+            x_train.append(x_shuffled[i])
         else:
             y_dev.append(j)
-            x_dev.append(j)
+            x_dev.append(x_shuffled[i])
             d[j]-=1
-    return x_train, x_dev, y_train, y_dev
+    return np.array(x_train), np.array(x_dev), np.array(y_train), np.array(y_dev)
