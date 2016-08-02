@@ -83,7 +83,7 @@ def pad_sentences(sentences, padding_word="</s>"):
     Pads all sentences to the same length. The length is defined by the longest sentence.
     Returns padded sentences.
     """
-    sequence_length = max(len(x) for x in sentences)
+    sequence_length = 50#max(len(x) for x in sentences)
     padded_sentences = []
     for i in range(len(sentences)):
         sentence = sentences[i]
@@ -122,7 +122,7 @@ def load_data():
     Returns input vectors, labels, vocabulary, and inverse vocabulary.
     """
     # Load and preprocess data
-    sentences, labels = load_data_and_multilabels()	#改为多分类
+    sentences, labels = load_data_and_labels()	#改为多分类
     sentences_padded = pad_sentences(sentences)
     vocabulary, vocabulary_inv = build_vocab(sentences_padded)
     x, y = build_input_data(sentences_padded, labels, vocabulary)
@@ -169,3 +169,10 @@ def train_test_split(x,y,rate=0.8):
             x_dev.append(x_shuffled[i])
             d[j]-=1
     return np.array(x_train), np.array(x_dev), np.array(y_train), np.array(y_dev)
+
+def load_test_data():
+    sentence=list(open('1').readlines())
+    sentence=[s.strip() for s in sentence]
+    sentence=[clean_str(sent) for sent in sentence]
+    sentence=[jieba.lcut(s) for s in sentence]
+    return sentence

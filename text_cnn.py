@@ -18,7 +18,7 @@ logs = sys.stderr
 CNNModel = namedtuple("CNNModel", ['cnn_exec', 'symbol', 'data', 'label', 'param_blocks'])
 
 def make_text_cnn(sentence_size, num_embed, batch_size, vocab_size,
-        num_label=2, filter_list=[3, 4, 5], num_filter=10,
+        num_label=2, filter_list=[2, 3, 4], num_filter=10,
         dropout=0., with_embedding=True):
 
     input_x = mx.sym.Variable('data') # placeholder for input
@@ -103,7 +103,7 @@ def setup_cnn_model(ctx, batch_size, sentence_size, num_embed, vocab_size,
 
 
 def train_cnn(model, X_train_batch, y_train_batch, X_dev_batch, y_dev_batch, batch_size,
-        optimizer='rmsprop', max_grad_norm=5.0, learning_rate=0.0005, epoch=20):  #epoch=200
+        optimizer='rmsprop', max_grad_norm=5.0, learning_rate=0.0005, epoch=10):  #epoch=200
     m = model
     if not os.path.isdir('checkpoint'):
         os.system("mkdir checkpoint")
@@ -195,7 +195,8 @@ def train_cnn(model, X_train_batch, y_train_batch, X_dev_batch, y_dev_batch, bat
                 --- Dev Accuracy thus far: %.3f' % (iteration, train_time, train_acc, dev_acc)
     return m
 
-
+def predict():
+    pass
 
 def train_without_pretrained_embedding():
     x, y, vocab, vocab_inv = data_helpers.load_data()
@@ -210,8 +211,8 @@ def train_without_pretrained_embedding():
     print 'dev shape:', x_dev.shape
     print 'vocab_size', vocab_size
    
-    batch_size = 50
-    num_embed = 300
+    batch_size = 100
+    num_embed = 50
     sentence_size = x_train.shape[1]
 
     print 'batch size', batch_size
@@ -220,7 +221,41 @@ def train_without_pretrained_embedding():
 
     cnn_model = setup_cnn_model(mx.cpu(), batch_size, sentence_size, num_embed, vocab_size, dropout=0.5, with_embedding=False) #原来是mx.gpu(0)
     m=train_cnn(cnn_model, x_train, y_train, x_dev, y_dev, batch_size)
-    
+
+    #m.data[:] = x_dev[:100]
+    #m.cnn_exec.forward(is_train=False)#.predict('12345678')
+    #print np.argmax(m.cnn_exec.outputs[0].asnumpy(), axis=1)
+    return m,batch_size,vocab
 
 if __name__ == '__main__':
-    train_without_pretrained_embedding()
+    m,batchsize,vocab=train_without_pretrained_embedding()
+    sentence=data_helpers.load_test_data()
+    sentences_padded = data_helpers.pad_sentences(sentence)
+    sentence_test=[]
+    for sent in sentences_padded:
+        l=[]
+        for word in sent:
+            if word in vocab:
+                l.append(vocab[word])
+            else:
+                l.append(0)
+        sentence_test.append(l)
+    sentence_test=np.array(sentence_test)
+    print sentence_test[10]
+    l=[]
+    for begin in range(0,sentence_test.shape[0] ,100):
+        batch=sentence_test[begin:begin+100]
+        if batch.shape[0]!=100:
+            break
+        m.data[:]=batch
+        m.cnn_exec.forward(is_train=False)
+        l.extend(np.argmax(m.cnn_exec.outputs[0].asnumpy(), axis=1))
+    f=open('1')
+    lines=f.readlines()
+    f.close()
+    f=open('2','w')
+    for i in xrange(len(l)):
+        if l[i]==0:
+            f.write(lines[i])
+    f.close()
+            
