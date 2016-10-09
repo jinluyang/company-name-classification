@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import pickle
 import sys,os
 import mxnet as mx
 import numpy as np
@@ -103,7 +103,7 @@ def setup_cnn_model(ctx, batch_size, sentence_size, num_embed, vocab_size,
 
 
 def train_cnn(model, X_train_batch, y_train_batch, X_dev_batch, y_dev_batch, batch_size,
-        optimizer='rmsprop', max_grad_norm=5.0, learning_rate=0.0005, epoch=10):  #epoch=200
+        optimizer='rmsprop', max_grad_norm=5.0, learning_rate=0.0005, epoch=5):  #epoch=200
     m = model
     if not os.path.isdir('checkpoint'):
         os.system("mkdir checkpoint")
@@ -229,33 +229,43 @@ def train_without_pretrained_embedding():
 
 if __name__ == '__main__':
     m,batchsize,vocab=train_without_pretrained_embedding()
-    sentence=data_helpers.load_test_data()
-    sentences_padded = data_helpers.pad_sentences(sentence)
-    sentence_test=[]
-    for sent in sentences_padded:
-        l=[]
-        for word in sent:
-            if word in vocab:
-                l.append(vocab[word])
-            else:
-                l.append(0)
-        sentence_test.append(l)
-    sentence_test=np.array(sentence_test)
-    print sentence_test[10]
-    l=[]
-    for begin in range(0,sentence_test.shape[0] ,100):
-        batch=sentence_test[begin:begin+100]
-        if batch.shape[0]!=100:
-            break
-        m.data[:]=batch
-        m.cnn_exec.forward(is_train=False)
-        l.extend(np.argmax(m.cnn_exec.outputs[0].asnumpy(), axis=1))
-    f=open('1')
-    lines=f.readlines()
-    f.close()
-    f=open('2','w')
-    for i in xrange(len(l)):
-        if l[i]==0:
-            f.write(lines[i])
-    f.close()
+    
+#    output = open('vocab.pkl', 'wb')
+#    pickle.dump(vocab,output)
+#    output.close()
+    
+#output = open('model.pkl', 'wb')
+#pickle.dump(m.param_blocks,output)
+#output.close()
+    
+#    sentence=data_helpers.load_test_data()
+#    sentences_padded = data_helpers.pad_sentences(sentence)
+#    sentence_test=[]
+#    for sent in sentences_padded:
+#        l=[]
+#        for word in sent:
+#            if word in vocab:
+#                l.append(vocab[word])
+#            else:
+#                l.append(0)
+#        sentence_test.append(l)
+#    sentence_test=np.array(sentence_test)
+#    print sentence_test[10]
+#    l=[]
+#    for begin in range(0,sentence_test.shape[0] ,100):
+#        batch=sentence_test[begin:begin+100]
+#        if batch.shape[0]!=100:
+#            break
+#        m.data[:]=batch
+#        m.cnn_exec.forward(is_train=False)
+#        l.extend(np.argmax(m.cnn_exec.outputs[0].asnumpy(), axis=1))
+#    f=open('1')
+#    lines=f.readlines()
+#    f.close()
+#    f=open('2','w')
+#    for i in xrange(len(l)):
+#        if l[i]==0:
+#            f.write(lines[i])
+#    f.close()
             
+#m.symbol.save('symbol')

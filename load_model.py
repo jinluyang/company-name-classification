@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Aug  4 17:01:30 2016
-
+使用load_symbol predict会出错 model_loaded.predict(sentence_test)
 @author: root
 """
 from collections import namedtuple
@@ -56,7 +56,6 @@ def setup_cnn_model(ctx, batch_size, sentence_size, num_embed, vocab_size,
 
         param_blocks.append( (i, arg_dict[name], args_grad[name], name) )
 
-    out_dict = dict(zip(cnn.list_outputs(), cnn_exec.outputs))
 
     data = cnn_exec.arg_dict['data']
     label = cnn_exec.arg_dict['softmax_label']
@@ -66,7 +65,6 @@ def setup_cnn_model(ctx, batch_size, sentence_size, num_embed, vocab_size,
 pkl_file = open('vocab.pkl', 'rb')
 vocab  = pickle.load(pkl_file)
 pkl_file.close()
-
 
 
 sentence=data_helpers.load_test_data()
